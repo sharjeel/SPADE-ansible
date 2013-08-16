@@ -1,0 +1,75 @@
+---
+ - name: Setup SPADE and its pre-requisites on Ubuntu
+   hosts: all
+   vars:
+        adt_bundle_base_url: http://dl.google.com/android/adt/
+        adt_bundle_filename: adt-bundle-linux-x86_64-20130729.zip
+        adt_bundle_url: '{{ adt_bundle_base_url + adt_bundle_filename }}'
+   tasks:
+        # Install pre-requisites
+        - name: Install svn, make, gcc and other required standard tools
+          tags: [common]
+          apt: pkg={{ item }} state=installed
+          with_items:
+           - gcc 
+           - make 
+           - subversion 
+           - libaudit-dev 
+           - auditd 
+           - libfuse-dev 
+           - fuse-utils
+
+        # Install Oracle Java7
+        - name: add Java PPA
+          tags: [java]
+          apt_repository: repo=ppa:webupd8team/java state=present
+
+        - name: automatically accept Java license
+          tags: [java]
+          shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+          
+        - name: install Java 7
+          tags: [java]
+          apt: pkg='{{ item }}' state=present update_cache=yes
+          with_items:
+            - oracle-java7-installer
+            - oracle-jdk7-installer
+            - oracle-java7-set-default
+            - jython
+
+        # Directories
+        - name: Create workspace and tmp directories in home
+          sudo: no
+          tags: [common]
+          command: mkdir -p ~/tmp/ ~/workspace/spade
+
+        # Install Android NDK and SDK
+        - name: download sdk
+          sudo: no
+          tags: [android]       
+          get_url: url={{ adt_bundle_url }} dest=~/tmp/{{ adt_bundle_filename }}
+          # command: wget -c {{ adt_bundle_url }} -P ~/tmp/
+          notify:
+                extract Android SDK
+
+        - name: add adb in bash and zsh paths
+          sudo: no
+          tags: [android]
+          lineinfile: dest=~/.{{ item }}rc line="export PATH=$PATH:~/bin/adt-bundle-linux-x86_64-20130729/sdk/platform-tools" regexp="export PATH=.*/sdk/platform-tools" state=present create=yes insertbefore='BOF'
+          with_items:
+          - bash
+          - zsh
+
+        # SPADE
+        - name: Checkout SPADE source code
+          sudo: no 
+          tags: [spade]
+          subversion: repo=http://data-provenance.googlecode.com/svn/trunk/SPADE/ dest=~/workspace/spade/
+        - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run "./configure; make". For further information please refer to 'https://code.google.com/p/data-provenance/wiki/ControlClient'"
+        
+   handlers:
+        - name: extract Android SDK
+          sudo: no
+          tags: [android]
+          command: unzip ~/tmp/{{ adt_bundle_filename }} -d ~/bin/
+               
