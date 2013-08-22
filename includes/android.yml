@@ -1,0 +1,17 @@
+---
+# Install Android SDK
+- name: download sdk
+  sudo: no
+  tags: [android]       
+  get_url: url={{ adt_bundle_url }} dest=~/tmp/{{ adt_bundle_filename }}.zip
+
+  notify:
+        extract Android SDK
+
+- name: add adb,dx, android in bash and zsh paths
+  sudo: no
+  tags: [android,paths]
+  lineinfile: dest=~/.{{ item }}rc line="export PATH=$PATH:{{ adt_bundle_dest_dir }}/sdk/platform-tools:{{ adt_bundle_dest_dir }}/sdk/build-tools/android-4.3:{{ adt_bundle_dest_dir }}/sdk/tools"  regexp="export PATH=.*adt.*/sdk/platform-tools" state=present create=yes insertafter='EOF'
+  with_items:
+  - bash
+  - zsh

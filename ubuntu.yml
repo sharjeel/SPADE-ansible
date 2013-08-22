@@ -3,8 +3,9 @@
    hosts: all
    vars:
         adt_bundle_base_url: http://dl.google.com/android/adt/
-        adt_bundle_filename: adt-bundle-linux-x86_64-20130729.zip
-        adt_bundle_url: '{{ adt_bundle_base_url + adt_bundle_filename }}'
+        adt_bundle_filename: adt-bundle-linux-x86_64-20130729
+        adt_bundle_url: '{{ adt_bundle_base_url + adt_bundle_filename + ".zip" }}'
+        adt_bundle_dest_dir: ~/adt-bundle
    tasks:
         # Install pre-requisites
         - name: Install svn, make, gcc and other required standard tools
@@ -39,46 +40,19 @@
             - oracle-java7-set-default
             - jython
 
-        # Directories
-        - name: Create workspace and tmp directories in home
-          sudo: no
-          tags: [common]
-          shell: mkdir -p ~/tmp/ ~/workspace/
+        # Android
+        - include: includes/android.yml
 
-        # Install Android SDK
-        - name: download sdk
-          sudo: no
-          tags: [android]       
-          get_url: url={{ adt_bundle_url }} dest=~/tmp/{{ adt_bundle_filename }}
-          # command: wget -c {{ adt_bundle_url }} -P ~/tmp/
-          notify:
-                extract Android SDK
-
-        - name: add adb,dx, android in bash and zsh paths
-          sudo: no
-          tags: [android,paths]
-          lineinfile: dest=~/.{{ item }}rc line="export PATH=$PATH:~/bin/adt-bundle-linux-x86_64-20130729/sdk/platform-tools:~/bin/adt-bundle-linux-x86_64-20130729/sdk/build-tools/android-4.3:/home/spade/bin/adt-bundle-linux-x86_64-20130729/sdk/tools"  regexp="export PATH=.*adt.*/sdk/platform-tools" state=present create=yes insertafter='EOF'
-          with_items:
-          - bash
-          - zsh
-
-        # - name: create avd emulator
-        #   sudo: no
-        #   tags: [android]
-        #   command: android create avd -n spade -
-          
         # SPADE
-        - name: Checkout SPADE source code
-          sudo: no 
-          tags: [spade]
-          subversion: repo=http://data-provenance.googlecode.com/svn/trunk/SPADE/ dest=~/workspace/spade/
+        - include: includes/spade.yml
+
 
         - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run './configure && make'. For further information please refer to 'https://code.google.com/p/data-provenance/wiki/ControlClient'. Press enter to continue."
-          tags: [spade, prompt]
+          tags: [spade]
         
    handlers:
         - name: extract Android SDK
           sudo: no
           tags: [android]
-          shell: unzip ~/tmp/{{ adt_bundle_filename }} -d ~/bin/
+          shell: unzip ~/tmp/{{ adt_bundle_filename }}.zip -d ~/bin/
 

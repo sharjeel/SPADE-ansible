@@ -1,0 +1,13 @@
+---
+# Directories
+- name: Create workspace and tmp directories in home
+  sudo: no
+  tags: [common]
+  shell: mkdir -p ~/tmp/ ~/workspace/
+
+# SPADE
+- name: Checkout SPADE source code
+  sudo: no 
+  tags: [spade]
+  subversion: repo=http://data-provenance.googlecode.com/svn/trunk/SPADE/ dest=~/workspace/spade/
+
