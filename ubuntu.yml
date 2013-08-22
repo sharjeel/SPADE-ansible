@@ -43,7 +43,7 @@
         - name: Create workspace and tmp directories in home
           sudo: no
           tags: [common]
-          shell: mkdir -p ~/tmp/ ~/workspace/spade
+          shell: mkdir -p ~/tmp/ ~/workspace/
 
         # Install Android SDK
         - name: download sdk
