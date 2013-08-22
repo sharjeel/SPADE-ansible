@@ -18,6 +18,8 @@
            - auditd 
            - libfuse-dev 
            - fuse-utils
+           - graphviz
+           - ia32-libs
 
         # Install Oracle Java7
         - name: add Java PPA
@@ -41,9 +43,9 @@
         - name: Create workspace and tmp directories in home
           sudo: no
           tags: [common]
-          command: mkdir -p ~/tmp/ ~/workspace/spade
+          shell: mkdir -p ~/tmp/ ~/workspace/spade
 
-        # Install Android NDK and SDK
+        # Install Android SDK
         - name: download sdk
           sudo: no
           tags: [android]       
@@ -52,24 +54,31 @@
           notify:
                 extract Android SDK
 
-        - name: add adb in bash and zsh paths
+        - name: add adb,dx, android in bash and zsh paths
           sudo: no
-          tags: [android]
-          lineinfile: dest=~/.{{ item }}rc line="export PATH=$PATH:~/bin/adt-bundle-linux-x86_64-20130729/sdk/platform-tools" regexp="export PATH=.*/sdk/platform-tools" state=present create=yes insertbefore='BOF'
+          tags: [android,paths]
+          lineinfile: dest=~/.{{ item }}rc line="export PATH=$PATH:~/bin/adt-bundle-linux-x86_64-20130729/sdk/platform-tools:~/bin/adt-bundle-linux-x86_64-20130729/sdk/build-tools/android-4.3:/home/spade/bin/adt-bundle-linux-x86_64-20130729/sdk/tools"  regexp="export PATH=.*adt.*/sdk/platform-tools" state=present create=yes insertafter='EOF'
           with_items:
           - bash
           - zsh
 
+        # - name: create avd emulator
+        #   sudo: no
+        #   tags: [android]
+        #   command: android create avd -n spade -
+          
         # SPADE
         - name: Checkout SPADE source code
           sudo: no 
           tags: [spade]
           subversion: repo=http://data-provenance.googlecode.com/svn/trunk/SPADE/ dest=~/workspace/spade/
-        - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run "./configure; make". For further information please refer to 'https://code.google.com/p/data-provenance/wiki/ControlClient'"
+
+        - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run './configure && make'. For further information please refer to 'https://code.google.com/p/data-provenance/wiki/ControlClient'. Press enter to continue."
+          tags: [spade, prompt]
         
    handlers:
         - name: extract Android SDK
           sudo: no
           tags: [android]
-          command: unzip ~/tmp/{{ adt_bundle_filename }} -d ~/bin/
-               
+          shell: unzip ~/tmp/{{ adt_bundle_filename }} -d ~/bin/
+
