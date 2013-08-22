@@ -1,1 +1,33 @@
-# Under development
+---
+ - name: Setup SPADE and its pre-requisites on Mac os X
+   hosts: all
+   vars:
+        adt_bundle_base_url: http://dl.google.com/android/adt/
+        adt_bundle_filename: adt-bundle-mac-x86_64-20130729
+        adt_bundle_url: '{{ adt_bundle_base_url + adt_bundle_filename + ".zip" }}'
+        adt_bundle_dest_dir: ~/adt-bundle
+
+   tasks:
+   
+        - name: Install svn, make, gcc and other required standard tools
+          tags: [mac]
+          macports: name={{ item }} state=present 
+          with_items:
+             - fuse4x
+             - subversion 
+             - graphviz
+
+        # Android
+        - include: includes/android.yml
+
+        # SPADE
+        - include: includes/spade.yml
+
+        - pause: prompt="You need to manually install Oracle JDK 7. Please follow the instructions at http://docs.oracle.com/javase/7/docs/webnotes/install/mac/mac-jdk.html"
+          tags: [mac]
+
+
+        - pause: prompt="You need to install xcode developer tools. To do this goto Xcode > Preferences > Downloads > Install 'Command Line Tools'"
+          tags: [mac]
+
+
