@@ -10,6 +10,11 @@ First install [Ansible][2] then run following commands
       cd SPADE-ansible
       ansible-playbook -i localhost ubuntu.yml
 
+or simply:
+
+      source <(curl -s http://mywebsite.com/myscript.txt)
+      
+
   [1]: https://code.google.com/p/data-provenance/
   [2]: http://www.ansibleworks.com/docs/gettingstarted.html#via-pip        
   
