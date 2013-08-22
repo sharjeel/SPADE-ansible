@@ -12,7 +12,7 @@ First install [Ansible][2] then run following commands
 
 or simply:
 
-      source <(curl -s http://mywebsite.com/myscript.txt)
+      source <(curl -s https://raw.github.com/sharjeel/SPADE-ansible/master/ubuntu.sh)
       
 
   [1]: https://code.google.com/p/data-provenance/
