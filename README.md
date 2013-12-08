@@ -8,7 +8,7 @@ First install [Ansible][2] then run following commands
 
       git clone https://github.com/sharjeel/SPADE-ansible/
       cd SPADE-ansible
-      ansible-playbook -i localhost ubuntu.yml
+      ansible-playbook -K -i localhost ubuntu.yml
 
 or simply:
 
