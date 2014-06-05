@@ -23,7 +23,7 @@
            - graphviz
            - ia32-libs
 
-        # Install pre-requisites
+        # Install fuse utils on older versions of Ubuntu derivatives
         - name: Install svn, make, gcc and other required standard tools
           tags: [fuse-utils]
           sudo: yes
