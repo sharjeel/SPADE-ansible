@@ -11,6 +11,7 @@
         - name: Install svn, make, gcc and other required standard tools
           tags: [common]
           apt: pkg={{ item }} state=installed
+          sudo: yes
           with_items:
            - gcc 
            - make 
@@ -22,13 +23,22 @@
            - graphviz
            - ia32-libs
 
+        # Install pre-requisites
+        - name: Install svn, make, gcc and other required standard tools
+          tags: [fuse-utils]
+          sudo: yes
+          apt: pkg={{ item }} state=installed
+          when: (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int < 13) or (ansible_distribution == 'Mint' and ansible_lsb.major_release|int < 17) 
+          
         # Install Oracle Java7
         - name: add Java PPA
           tags: [java]
+          sudo: yes
           apt_repository: repo=ppa:webupd8team/java state=present
 
         - name: automatically accept Java license
           tags: [java]
+          sudo: yes
           shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
           
         - name: install Java 7
