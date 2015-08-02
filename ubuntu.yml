@@ -19,7 +19,7 @@
            - libaudit-dev 
            - auditd 
            - libfuse-dev 
-           - fuse-utils
+           - fuse
            - graphviz
            - ia32-libs
 
@@ -30,24 +30,29 @@
           apt: pkg={{ item }} state=installed
           when: (ansible_distribution == 'Ubuntu' and ansible_lsb.major_release|int < 13) or (ansible_distribution == 'Mint' and ansible_lsb.major_release|int < 17) 
           
-        # Install Oracle Java7
+        # Install Oracle Java8
+        # Disabled because of https://github.com/ansible/ansible/issues/9383
+        # - name: add Java PPA
+        #   tags: [java]
+        #   sudo: yes
+        #   apt_repository: repo='ppa:webupd8team/java' state=present
         - name: add Java PPA
           tags: [java]
           sudo: yes
-          apt_repository: repo=ppa:webupd8team/java state=present
+          shell: add-apt-repository ppa:webupd8team/java
 
         - name: automatically accept Java license
           tags: [java]
           sudo: yes
-          shell: echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+          shell: echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
           
-        - name: install Java 7
-          tags: [java]
+        - name: install Java 8
+          tags: [java, oracle-java]
           apt: pkg='{{ item }}' state=present update_cache=yes
           with_items:
-            - oracle-java7-installer
-            - oracle-jdk7-installer
-            - oracle-java7-set-default
+            - oracle-java8-installer
+            - oracle-jdk8-installer
+            - oracle-java8-set-default
             - jython
 
         # Android
@@ -57,7 +62,7 @@
         - include: includes/spade.yml
 
 
-        - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run './configure && make'. For further information please refer to 'https://code.google.com/p/data-provenance/wiki/ControlClient'. Press enter to continue."
+        - pause: prompt="SPADE has been checked into directory '~/workspace/spade'. To compile, cd into this directory and run './configure && make'. For further information please refer to 'https://github.com/ashish-gehani/SPADE/wiki/Starting-and-controlling-SPADE'. Press enter to continue."
           tags: [spade]
         
    handlers:

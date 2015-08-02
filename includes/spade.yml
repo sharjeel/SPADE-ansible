@@ -9,5 +9,5 @@
 - name: Checkout SPADE source code
   sudo: no 
   tags: [spade]
-  subversion: repo=http://data-provenance.googlecode.com/svn/trunk/SPADE/ dest=~/workspace/spade/
+  git: repo=https://github.com/ashish-gehani/SPADE/ dest=~/workspace/spade/
 
